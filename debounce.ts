@@ -9,7 +9,7 @@ type TOptions = {
   leading?: boolean;
 };
 
-function debounce(fn: (value: string) => void, wait: number, options?: TOptions) {
+export default function debounce(fn: (value: string) => void, wait: number, options?: TOptions) {
   let timeoutId: NodeJS.Timeout | null = null;
   let lastCallTime: number | null = null;
   let lastThis: any;
