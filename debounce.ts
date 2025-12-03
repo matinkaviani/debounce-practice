@@ -10,16 +10,60 @@ type TOptions = {
 };
 
 function debounce(fn: (value: string) => void, wait: number, options?: TOptions) {
-  let timeoutId: NodeJS.Timeout;
+  let timeoutId: NodeJS.Timeout | null = null;
+  let lastCallTime: number | null = null;
+  let lastThis: any;
+  let lastArgs: any[] = [];
+  let lastResult: any;
+  let lastCallError: Error | null = null;
+
   const { leading = false } = options || {};
 
-  return function (this: any, ...args: any) {
-    clearTimeout(timeoutId);
+  const debounced = function (this: any, ...args: any) {
+    const now = Date.now();
+    const isFirstCall = lastCallTime === null;
+
+    lastThis = this;
+    lastArgs = args;
+
+    if (timeoutId !== null) clearTimeout(timeoutId);
+
+    if (leading && isFirstCall) {
+      try {
+        lastResult = fn.apply(this, args);
+      } catch (err) {
+        lastCallError = err as Error;
+        throw lastCallError;
+      }
+      lastCallTime = now;
+    }
 
     timeoutId = setTimeout(() => {
-      fn.apply(this, args);
+      if (!leading || !isFirstCall) {
+        try {
+          lastResult = fn.apply(lastThis, lastArgs as [string]);
+          lastCallError = null;
+        } catch (error) {
+          lastCallError = error as Error;
+          throw lastCallError;
+        }
+      }
+      timeoutId = null;
+      lastCallTime = null;
     }, wait);
   };
+
+  debounced.cancel = function () {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    lastCallTime = null;
+    lastArgs = [];
+    lastCallError = null;
+  };
+
+  return debounced;
 }
 
 // TEST PLAYGROUND
