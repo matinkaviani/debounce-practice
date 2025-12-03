@@ -5,20 +5,15 @@
  * @returns {Function & { cancel: () => void }}
  */
 
-// type TOptions = {
-//   leading?: boolean;
-// };
+type TOptions = {
+  leading?: boolean;
+};
 
-// interface IDebounce {
-//   fn: () => void;
-//   wait: number;
-//   options: TOptions;
-// }
+function debounce(fn: (value: string) => void, wait: number, options?: TOptions) {
+  let timeoutId: NodeJS.Timeout;
+  const { leading = false } = options || {};
 
-function debounce(fn, wait, options) {
-  let timeoutId;
-
-  return function (...args) {
+  return function (this: any, ...args: any) {
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {
@@ -28,11 +23,11 @@ function debounce(fn, wait, options) {
 }
 
 // TEST PLAYGROUND
-function log(message) {
+function log(message: string) {
   console.log(message);
 }
 
-function operation(value) {
+function operation(value: string) {
   log(`debounced call with: ${value}`);
 }
 
@@ -44,7 +39,7 @@ async function simulateType() {
   for (const v of val) {
     log(`is typing: ${v}`);
     debouncedFunction(v);
-    await new Promise((res) =>
+    await new Promise<void>((res) =>
       setTimeout(() => {
         res();
       }, 500)
