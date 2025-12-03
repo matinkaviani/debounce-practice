@@ -91,4 +91,25 @@ async function simulateType() {
   }
 }
 
+const leadingDebounced = debounce(
+  (value: string) => {
+    log(`leading: ${value}`);
+  },
+  1000,
+  { leading: true }
+);
+
+leadingDebounced("A");
+setTimeout(() => leadingDebounced("B"), 300);
+setTimeout(() => leadingDebounced("C"), 600);
+
+// Cancel
+const cancelableDebounced = debounce((value: string) => {
+  log(`cancelable: ${value}`);
+}, 2000);
+
+cancelableDebounced("X");
+setTimeout(() => cancelableDebounced("Y"), 500);
+setTimeout(() => cancelableDebounced.cancel(), 1000);
+
 simulateType();
